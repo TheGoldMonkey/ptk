@@ -530,6 +530,33 @@ def menu_complete_backward(event: E) -> None:
     """
     event.current_buffer.complete_previous()
 
+import os
+
+@register("menu-page-down")
+def menu_page_down(event: E) -> None:
+    """
+    Move to the next page of completions.
+    """
+    if event.current_buffer.complete_state is not None:
+        if event.current_buffer.complete_state.complete_index is not None:
+            event.current_buffer.complete_state.complete_index += os.get_terminal_size().lines - 1
+            n = len(event.current_buffer.complete_state.completions)
+            event.current_buffer.complete_state.complete_index = min(n - 1, event.current_buffer.complete_state.complete_index)
+        else:
+            event.current_buffer.complete_state.complete_index = 0
+
+@register("menu-page-up")
+def menu_page_up(event: E) -> None:
+    """
+    Move to the previous page of completions.
+    """
+    if event.current_buffer.complete_state is not None:
+        if event.current_buffer.complete_state.complete_index is not None:
+            event.current_buffer.complete_state.complete_index -= os.get_terminal_size().lines - 1
+            event.current_buffer.complete_state.complete_index = max(0, event.current_buffer.complete_state.complete_index)
+        else:
+            event.current_buffer.complete_state.complete_index = 0
+            
 
 #
 # Keyboard macros.

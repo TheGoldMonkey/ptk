@@ -10,6 +10,7 @@ from prompt_toolkit.filters import (
     is_multiline,
     vi_insert_mode,
 )
+from prompt_toolkit.filters.app import has_completions
 from prompt_toolkit.key_binding.key_processor import KeyPress, KeyPressEvent
 from prompt_toolkit.keys import Keys
 
@@ -176,8 +177,8 @@ def load_basic_bindings() -> KeyBindings:
     # should delete using [^a-zA-Z0-9] as a boundary.
     handle("c-w", filter=insert_mode)(get_by_name("unix-word-rubout"))
 
-    handle("pageup", filter=~has_selection)(get_by_name("previous-history"))
-    handle("pagedown", filter=~has_selection)(get_by_name("next-history"))
+    handle("pageup", filter=has_completions)(get_by_name("menu-page-up"))
+    handle("pagedown", filter=has_completions)(get_by_name("menu-page-down"))
 
     # CTRL keys.
 
