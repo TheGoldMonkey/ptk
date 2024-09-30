@@ -18,6 +18,10 @@ from enum import Enum
 from functools import wraps
 from typing import Any, Callable, Coroutine, Iterable, TypeVar, cast
 
+from termcolor import cprint
+
+from prompt_toolkit.filters.app import has_completions
+
 from .application.current import get_app
 from .application.run_in_terminal import run_in_terminal
 from .auto_suggest import AutoSuggest, Suggestion
@@ -236,6 +240,7 @@ class Buffer:
         on_suggestion_set: BufferEventHandler | None = None,
     ) -> None:
         # Accept both filters and booleans as input.
+        self.want_completions = False
         enable_history_search = to_filter(enable_history_search)
         complete_while_typing = to_filter(complete_while_typing)
         validate_while_typing = to_filter(validate_while_typing)
@@ -309,6 +314,7 @@ class Buffer:
         """
         if append_to_history:
             self.append_to_history()
+        self.want_completions = False
 
         document = document or Document()
 
@@ -1248,7 +1254,7 @@ class Buffer:
             self.on_text_insert.fire()
 
             # Only complete when "complete_while_typing" is enabled.
-            if self.completer and self.complete_while_typing():
+            if self.completer and self.complete_while_typing() and self.want_completions:
                 get_app().create_background_task(self._async_completer())
 
             # Call auto_suggest.
@@ -1661,6 +1667,7 @@ class Buffer:
         """
         # Only one of these options can be selected.
         assert select_first + select_last + insert_common_part <= 1
+        self.want_completions = True
 
         get_app().create_background_task(
             self._async_completer(

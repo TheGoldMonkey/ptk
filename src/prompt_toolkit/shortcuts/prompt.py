@@ -57,6 +57,7 @@ from prompt_toolkit.filters import (
     renderer_height_is_known,
     to_filter,
 )
+from prompt_toolkit.filters.app import has_completions
 from prompt_toolkit.formatted_text import (
     AnyFormattedText,
     StyleAndTextTuples,
@@ -1275,8 +1276,11 @@ class PromptSession(Generic[_T]):
             # Reserve the space, either when there are completions, or when
             # `complete_while_typing` is true and we expect completions very
             # soon.
-            if buff.complete_while_typing() or buff.complete_state is not None:
-                space = min(max(len(buff.complete_state.completions), 0), self.reserve_space_for_menu)
+            if buff.complete_while_typing():
+                if buff.complete_state is not None:
+                    space = min(max(len(buff.complete_state.completions), 0), self.reserve_space_for_menu)
+                else:
+                    space = 0
                 return Dimension(min=space)
 
         return Dimension()
