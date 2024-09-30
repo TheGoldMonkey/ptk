@@ -24,8 +24,8 @@ Example::
         s = PromptSession()
         result = s.prompt('Say something: ')
 """
-
 from __future__ import annotations
+from termcolor import colored, cprint
 
 from asyncio import get_running_loop
 from contextlib import contextmanager
@@ -222,7 +222,7 @@ PromptContinuationText = Union[
 
 _T = TypeVar("_T")
 
-
+import os
 class PromptSession(Generic[_T]):
     """
     PromptSession for a prompt application, which can be used as a GNU Readline
@@ -417,6 +417,9 @@ class PromptSession(Generic[_T]):
         interrupt_exception: type[BaseException] = KeyboardInterrupt,
         eof_exception: type[BaseException] = EOFError,
     ) -> None:
+        
+        color_depth = "DEPTH_24_BIT"
+
         history = history or InMemoryHistory()
         clipboard = clipboard or InMemoryClipboard()
 
@@ -669,7 +672,7 @@ class PromptSession(Generic[_T]):
                             ycursor=True,
                             transparent=True,
                             content=CompletionsMenu(
-                                max_height=16,
+                                max_height=1000,
                                 scroll_offset=1,
                                 extra_filter=has_focus(default_buffer)
                                 & ~multi_column_complete_style,
@@ -904,6 +907,7 @@ class PromptSession(Generic[_T]):
         in_thread: bool = False,
         inputhook: InputHook | None = None,
     ) -> _T:
+        reserve_space_for_menu = os.get_terminal_size().lines
         """
         Display the prompt.
 
@@ -1272,6 +1276,7 @@ class PromptSession(Generic[_T]):
             # `complete_while_typing` is true and we expect completions very
             # soon.
             if buff.complete_while_typing() or buff.complete_state is not None:
+                space = min(max(len(buff.complete_state.completions), 0), self.reserve_space_for_menu)
                 return Dimension(min=space)
 
         return Dimension()

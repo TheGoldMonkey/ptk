@@ -1,4 +1,6 @@
 from __future__ import annotations
+from termcolor import colored, cprint
+import traceback
 
 import math
 from itertools import zip_longest
@@ -65,6 +67,8 @@ class CompletionsMenuControl(UIControl):
         return False
 
     def preferred_width(self, max_available_width: int) -> int | None:
+        # cprint(max_available_width, "red", "on_white", attrs=["bold"])
+        return max_available_width
         complete_state = get_app().current_buffer.complete_state
         if complete_state:
             menu_width = self._get_menu_width(500, complete_state)
@@ -82,6 +86,9 @@ class CompletionsMenuControl(UIControl):
         get_line_prefix: GetLinePrefixCallable | None,
     ) -> int | None:
         complete_state = get_app().current_buffer.complete_state
+        # cprint(max_available_height, "red", "on_white", attrs=["bold"])
+        return max(max_available_height, len(complete_state.completions))
+
         if complete_state:
             return len(complete_state.completions)
         else:
@@ -352,6 +359,7 @@ class MultiColumnCompletionMenuControl(UIControl):
         Preferred width: prefer to use at least min_rows, but otherwise as much
         as possible horizontally.
         """
+        return max_available_width
         complete_state = get_app().current_buffer.complete_state
         if complete_state is None:
             return 0
@@ -379,6 +387,7 @@ class MultiColumnCompletionMenuControl(UIControl):
         wrap_lines: bool,
         get_line_prefix: GetLinePrefixCallable | None,
     ) -> int | None:
+        return max_available_height
         """
         Preferred height: as much as needed in order to display all the completions.
         """
